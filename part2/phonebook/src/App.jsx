@@ -1,48 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-
-const Filter = ({ searchName, handleSearchNameChange }) => {
-  return (
-    <div>
-      filter shown with{" "}
-      <input value={searchName} onChange={handleSearchNameChange} />
-    </div>
-  );
-};
-
-const PersonForm = ({
-  newName,
-  newNumber,
-  handleNameChange,
-  handleNumberChange,
-  addPerson,
-}) => {
-  return (
-    <form onSubmit={addPerson}>
-      <div>
-        name: <input value={newName} onChange={handleNameChange} />
-      </div>
-      <div>
-        number: <input value={newNumber} onChange={handleNumberChange} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  );
-};
-
-const Persons = ({ personsToShow }) => {
-  return (
-    <div>
-      {personsToShow.map((person) => (
-        <div key={person.name}>
-          {person.name} {person.number}
-        </div>
-      ))}
-    </div>
-  );
-};
+import Filter from "./components/Filter";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -66,10 +26,14 @@ const App = () => {
         name: newName,
         number: newNumber,
       };
-      setPersons(persons.concat(newPerson));
+      axios
+        .post("http://localhost:3001/persons", newPerson)
+        .then((response) => {
+          setPersons(persons.concat(response.data));
+          setNewName("");
+          setNewNumber("");
+        });
     }
-    setNewName("");
-    setNewNumber("");
   };
 
   const handleNameChange = (event) => {
