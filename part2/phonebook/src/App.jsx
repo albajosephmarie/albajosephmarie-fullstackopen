@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Filter = ({ searchName, handleSearchNameChange }) => {
   return (
     <div>
-      filter shown with <input value={searchName} onChange={handleSearchNameChange} />
+      filter shown with{" "}
+      <input value={searchName} onChange={handleSearchNameChange} />
     </div>
   );
-}
+};
 
-const PersonForm = ({ newName, newNumber, handleNameChange, handleNumberChange, addPerson }) => {
+const PersonForm = ({
+  newName,
+  newNumber,
+  handleNameChange,
+  handleNumberChange,
+  addPerson,
+}) => {
   return (
     <form onSubmit={addPerson}>
       <div>
@@ -22,7 +30,7 @@ const PersonForm = ({ newName, newNumber, handleNameChange, handleNumberChange, 
       </div>
     </form>
   );
-}
+};
 
 const Persons = ({ personsToShow }) => {
   return (
@@ -34,18 +42,20 @@ const Persons = ({ personsToShow }) => {
       ))}
     </div>
   );
-}
+};
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
+
+  useEffect(() => {
+    const eventHandler = (response) => {
+      setPersons(response.data);
+    };
+    axios.get("http://localhost:3001/persons").then(eventHandler);
+  }, []);
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -75,17 +85,28 @@ const App = () => {
   const handleSearchNameChange = (event) => {
     console.log(event.target.value);
     setSearchName(event.target.value);
-  }
+  };
 
-  const filteredPersons = persons.filter((person) => person.name.toLowerCase().includes(searchName.toLowerCase()))
+  const filteredPersons = persons.filter((person) =>
+    person.name.toLowerCase().includes(searchName.toLowerCase())
+  );
   const personsToShow = searchName ? filteredPersons : persons;
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter searchName={searchName} handleSearchNameChange={handleSearchNameChange} />
+      <Filter
+        searchName={searchName}
+        handleSearchNameChange={handleSearchNameChange}
+      />
       <h2>Add a new</h2>
-      <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson} />
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+        addPerson={addPerson}
+      />
       <h2>Numbers</h2>
       <Persons personsToShow={personsToShow} />
     </div>
