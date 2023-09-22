@@ -3,6 +3,7 @@ import axios from "axios";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -14,7 +15,7 @@ const App = () => {
     const eventHandler = (response) => {
       setPersons(response.data);
     };
-    axios.get("http://localhost:3001/persons").then(eventHandler);
+    personService.getAll().then(eventHandler);
   }, []);
 
   const addPerson = (event) => {
@@ -26,8 +27,7 @@ const App = () => {
         name: newName,
         number: newNumber,
       };
-      axios
-        .post("http://localhost:3001/persons", newPerson)
+      personService.create(newPerson)
         .then((response) => {
           setPersons(persons.concat(response.data));
           setNewName("");
