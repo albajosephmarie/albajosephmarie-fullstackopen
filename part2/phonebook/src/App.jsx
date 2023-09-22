@@ -56,6 +56,26 @@ const App = () => {
   );
   const personsToShow = searchName ? filteredPersons : persons;
 
+  const handleDelete = (id) => {
+    const personToDelete = persons.find((person) => person.id === id);
+    const confirmMessage = `Delete ${personToDelete.name}?`;
+  
+    if (window.confirm(confirmMessage)) {
+      // Make an HTTP DELETE request to delete the person from the backend
+      personService
+        .remove(id)
+        .then(() => {
+          // Update the state by removing the deleted person
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch((error) => {
+          // Handle any error that occurs during deletion
+          console.error("Error deleting person:", error);
+        });
+    }
+  };
+  
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -72,7 +92,7 @@ const App = () => {
         addPerson={addPerson}
       />
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      <Persons personsToShow={personsToShow} handleDelete={handleDelete}/>
     </div>
   );
 };
