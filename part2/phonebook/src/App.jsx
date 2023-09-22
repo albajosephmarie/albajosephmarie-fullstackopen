@@ -20,19 +20,41 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    if (persons.some((person) => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
+    const existingPerson = persons.find((person) => person.name === newName);
+    if (existingPerson) {
+      const confirmMessage = `${newName} is already added to the phonebook. Replace the old number with the new one?`;
+
+      if (window.confirm(confirmMessage)) {
+        const updatedPerson = {
+          ...existingPerson,
+          number: newNumber,
+        };
+        personService
+          .update(existingPerson.id, updatedPerson)
+          .then((response) => {
+            // Update the state with the updated person
+            setPersons(
+              persons.map((person) =>
+                person.id === existingPerson.id ? response.data : person
+              )
+            );
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            console.error("Error updating person:", error);
+          });
+      }
     } else {
       const newPerson = {
         name: newName,
         number: newNumber,
       };
-      personService.create(newPerson)
-        .then((response) => {
-          setPersons(persons.concat(response.data));
-          setNewName("");
-          setNewNumber("");
-        });
+      personService.create(newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+        setNewName("");
+        setNewNumber("");
+      });
     }
   };
 
@@ -59,7 +81,7 @@ const App = () => {
   const handleDelete = (id) => {
     const personToDelete = persons.find((person) => person.id === id);
     const confirmMessage = `Delete ${personToDelete.name}?`;
-  
+
     if (window.confirm(confirmMessage)) {
       // Make an HTTP DELETE request to delete the person from the backend
       personService
@@ -74,7 +96,6 @@ const App = () => {
         });
     }
   };
-  
 
   return (
     <div>
@@ -92,7 +113,7 @@ const App = () => {
         addPerson={addPerson}
       />
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} handleDelete={handleDelete}/>
+      <Persons personsToShow={personsToShow} handleDelete={handleDelete} />
     </div>
   );
 };
