@@ -3,16 +3,15 @@ import axios from "axios";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import Notification from "./components/Notification";
+import SuccessNotification from "./components/SuccessNotification";
 import personService from "./services/persons";
-
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
-  const [errorMessage, setErrorMessage] = useState('some error happened...')
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     const eventHandler = (response) => {
@@ -55,8 +54,13 @@ const App = () => {
       };
       personService.create(newPerson).then((response) => {
         setPersons(persons.concat(response.data));
+        // Inside the function where you add a new person or change a number
         setNewName("");
         setNewNumber("");
+        setSuccessMessage(`Person '${newName}' added successfully!`);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000); // Display success message for 5 seconds
       });
     }
   };
@@ -103,7 +107,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={errorMessage} />
+      <SuccessNotification message={successMessage} />
       <Filter
         searchName={searchName}
         handleSearchNameChange={handleSearchNameChange}
